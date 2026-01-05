@@ -1,0 +1,9 @@
+docx2txt
+numpy
+sentence-transformers
+chromadb
+transformers
+fastapi
+uvicorn
+tqdm
+pydantic
