@@ -6,11 +6,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import os
 from config.settings import Settings
 from core.vector_store import VectorStore
+from core.embedder import Embedder
 
 class SearchEngine:
-    def __init__(self):
+    def __init__(self, embedder: Embedder):
         # Loading chromadb
-        self.store = VectorStore(collection_name="legal_docs")
+        # self.embedder = embedder
+        self.store = VectorStore(embedder, collection_name="legal_docs")
         print(f"Search Engine Ready. Total documents: {self.store.collection.count()}")
 
     def search(self, query, k=5, threshold=0.7):

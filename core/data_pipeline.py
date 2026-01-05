@@ -10,6 +10,7 @@ from config.settings import Settings
 from utils.load_docx import check_file
 from core.chunker import Chunker
 from core.vector_store import VectorStore
+from core.embedder import Embedder
 
 def run_pipeline():
     """
@@ -22,8 +23,10 @@ def run_pipeline():
 
     # Initialize Components
     chunker = Chunker()
+
+    embedder = Embedder()
     
-    store = VectorStore(collection_name="legal_docs")
+    store = VectorStore(embedder, collection_name="legal_docs")
     store.reset()
     
     # Define Source Folders

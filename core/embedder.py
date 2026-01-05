@@ -9,19 +9,23 @@ import numpy as np
 from config.settings import Settings
 
 class Embedder:
-    def __init__(self, model_name=Settings.embedding_model):
+    def __init__(self):
         """
         Initializes the sentence transformer model.
         """
-        print(f"Loading embedding model: {model_name}")
-        self.model = SentenceTransformer(model_name, trust_remote_code=True)
+        self.model_name = Settings.embedding_model
+        print(f"Loading embedding model: {self.model_name}")
+        self.model = SentenceTransformer(self.model_name, trust_remote_code=True)
         
+        self.model.encode([" "], show_progress_bar=False, normalize_embeddings=True)  # Loading weghts as a warm up for the first query speed
+
     def embed_texts(self, texts):
         """
         Converts a list of strings into a numpy array of vectors.
         """
         embeddings = self.model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
         return embeddings
+
 
     def embed_query(self, query):
         """

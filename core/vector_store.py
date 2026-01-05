@@ -11,18 +11,22 @@ from core.embedder import Embedder
 from config.settings import Settings
 
 class VectorStore:
-    def __init__(self, collection_name="legal_docs"):
+    def __init__(self, embedder: Embedder, collection_name="legal_docs"):
         """
         Initializes the ChromaDB client and collection.
         """        
-        self.embedder = Embedder(Settings.embedding_model)
+        self.embedder = embedder
         
         self.client = chromadb.PersistentClient(path=Settings.indices_path)
+
         
         self.collection = self.client.get_or_create_collection(
-            name=collection_name, 
-            metadata={"hnsw:space": "cosine"}
-        )
+            name = collection_name, 
+            metadata = {"hnsw:space": "cosine"}
+        ) 
+
+        self.collection.peek(limit=1)  # Forces the database to load in memory to avoid delay on first query
+        
         print(f"Connected to collection: {collection_name}. Count: {self.collection.count()}")
 
     def add_documents(self, chunks):
@@ -39,7 +43,7 @@ class VectorStore:
         ids = [str(uuid.uuid4()) for c in chunks]
         
         # Generate Embeddings
-        print(f"Embedding {len(texts)} chunks...")
+        print(f"Embedding {len(texts)} chunks")
         embeddings = self.embedder.embed_texts(texts)
         
         embeddings_list = embeddings.tolist()

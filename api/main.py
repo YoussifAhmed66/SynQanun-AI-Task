@@ -12,6 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.search_engine import SearchEngine
 from core.data_pipeline import run_pipeline
 from config.settings import Settings
+from core.embedder import Embedder
 
 # --- Global State ---
 # This dictionary will hold the SearchEngine instance to persist across requests
@@ -27,8 +28,9 @@ async def lifespan(app: FastAPI):
     """
     print("API Starting up: Loading Models and Database.")
     try:
-        # Initial search engine load
-        engine = SearchEngine()
+        # Initial search engine 
+        embedder = Embedder()
+        engine = SearchEngine(embedder)
         
         # Check if database is empty
         if engine.store.collection.count() == 0:
