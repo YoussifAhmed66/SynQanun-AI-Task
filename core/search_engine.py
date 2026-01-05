@@ -17,28 +17,37 @@ class SearchEngine:
 
     def search(self, query, k=5, threshold=0.7):
         """
-        Searches the  vector database and returns a list of top results.
-        k: Total results to retrieve.
-        threshold: Minimum similarity score (0 to 1).
+        Searches at the chunk level and groups matches into document-level results.
+        Returns a list of documents, where each document contains its relevant chunks.
+        The total number of chunks returned across all documents is capped at k.
         """
-        # Query the vector database
+        # Retrieve top k chunks
         results = self.store.search(query, k=k, threshold=threshold)
         
-        return [item for item, score in results]
+        # Group by document (source)
+        doc_map = {}
+        # List to maintain the order of documents based on their highest scoring chunk
+        doc_order = []
+        
+        for item, score in results:
+            source = item.get('source', 'unknown')
+            
+            if source not in doc_map:
+                doc_map[source] = {
+                    'source': source,
+                    'type': item.get('type', 'unknown'),
+                    'max_score': score,
+                    'chunks': []
+                }
+                doc_order.append(source)
+            
+            # Add this chunk to the document's list
+            doc_map[source]['chunks'].append({
+                'text': item.get('text', ''),
+                'score': score,
+                'metadata': {meta_k: v for meta_k, v in item.items() if meta_k not in ['text', 'score', 'source', 'type']}
+            })
+            
+        # Return documents in original order (best hits first)
+        return [doc_map[source] for source in doc_order]
 
-
-# Testing Block
-if __name__ == "__main__":
-    engine = SearchEngine()
-    
-    query = "هل يجوز قانوناً خصم قيمة الغرامة المحكوم بها في جريمة رشوة من المعاش اللي بياخده ورثة الموظف بعد وفاته؟"
-    print(f"\nSearching for: {query}")
-    
-    results = engine.search(query, k=5, threshold=0.7)
-    
-    print(f"\n--- Top Results ({len(results)}) ---")
-    for item in results:
-        try:
-            print(f"[{item['score']}] ({item['type'].upper()}) {item['text']}")
-        except UnicodeEncodeError:
-            print(f"[{item['score']}] ({item['type'].upper()}) {item['text'].encode('utf-8', 'replace').decode('utf-8')}")

@@ -56,18 +56,24 @@ app = FastAPI(
 # --- Models ---
 
 class QueryRequest(BaseModel):
-    query: str
-    top_k: int = 5
+    q: str
+    topK: int = 5
     threshold: float = 0.7
 
-class SearchResult(BaseModel):
+class ChunkMatch(BaseModel):
     text: str
-    metadata: dict
     score: float
+    metadata: dict
+
+class DocumentResult(BaseModel):
+    source: str
+    type: str
+    max_score: float
+    chunks: List[ChunkMatch]
 
 class QueryResponse(BaseModel):
-    question: str
-    results: List[SearchResult]
+    q: str
+    results: List[DocumentResult]
 
 # --- Endpoints ---
 
@@ -83,22 +89,14 @@ async def search(request: QueryRequest):
     
     try:
         raw_results = state["search_engine"].search(
-            query=request.query, 
-            k=request.top_k, 
+            query=request.q, 
+            k=request.topK, 
             threshold=request.threshold
         )
         
-        formatted_results = []
-        for item in raw_results:
-            formatted_results.append(SearchResult(
-                text=item.get('text', ''),
-                metadata={k: v for k, v in item.items() if k not in ['text', 'score']},
-                score=item.get('score', 0.0)
-            ))
-            
         return QueryResponse(
-            question=request.query,
-            results=formatted_results
+            q=request.q,
+            results=[DocumentResult(**res) for res in raw_results]
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

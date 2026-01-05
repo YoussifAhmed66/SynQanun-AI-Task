@@ -154,21 +154,3 @@ class Chunker:
                 
         return chunks
 
-if __name__ == "__main__":
-    # Test Block
-    judgment_path = os.path.join(Settings.judgments, "judgment1.docx")
-    
-    print(f"Testing chunking on: {judgment_path}")
-    raw_text = check_file(judgment_path, "TEST LAW")
-    
-    if raw_text:
-        chunker = Chunker()
-        results = chunker.chunk_recursive(raw_text, "judgment1.docx")
-        
-        print(f"\n--- Found {len(results)} chunks ---")
-        for i, chunk in enumerate(results[:5]): # Print first 5
-            print(f"\nChunk {i}: ID={chunk['metadata']['id']}")
-            try:
-                print(f"Content Preview: {chunk['text'][:100]}.")
-            except UnicodeEncodeError:
-                print(f"Content Preview: {chunk['text'][:100].encode('utf-8', 'replace').decode('utf-8')}.")

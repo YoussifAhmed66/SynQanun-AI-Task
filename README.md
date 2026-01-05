@@ -104,6 +104,14 @@ Chunking is the most critical step in legal search. We employ two distinct strat
 
 ---
 
+## Document-Level Aggregation
+The search operates at the chunk level to find the most relevant snippets, but the results are aggregated at the **document level** before being returned to the user.
+- **Logic**: Chunks are grouped by their `source` filename.
+- **Ranking**: Each document's score is determined by the maximum similarity score among its constituent chunks.
+- **Return**: The most relevant chunk from each top-scoring document is returned as the "representative text".
+
+---
+
 ## Data Pipeline
 
 The pipeline orchestrates the entire ingestion process:
@@ -139,7 +147,33 @@ Submit a query to find the most relevant legal texts.
     "threshold": 0.7
   }
   ```
-- **Response**: Returns a list of matches including the text, source file name, document type (law/judgment/fatwa), and the similarity score.
+- **Response**: Returns a list of document-level matches including the most relevant chunk text, source file name, document type, and the similarity score.
+
+### Example Output
+```json
+{
+  "q": "ما هي عقوبة السرقة؟",
+  "results": [
+    {
+      "text": "المادة 311\nكل من اختلس مالاً منقولاً مملوكاً لغيره بنية تملكه يعتبر سارقاً.",
+      "metadata": {
+        "source": "قانون العقوبات.docx",
+        "type": "law",
+        "chunk_type": "article",
+        "id": "المادة 311"
+      },
+      "score": 0.892
+    }
+  ]
+}
+```
+
+---
+
+## Limitations
+- **Context Window**: While chunking handles long documents, extremely large "Articles" in laws are split, which might slightly fragment very long legal rules.
+- **Language**: Optimized for Arabic; while it uses a multilingual model, the chunking regex is specifically tuned for Arabic legal terminology.
+- **Aggregation**: Currently uses `Max-Pool` (highest chunk score) for document ranking. More complex aggregations (like Borda count or average) could be implemented for different use cases.
 
 ---
 
