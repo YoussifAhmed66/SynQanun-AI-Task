@@ -13,9 +13,14 @@ class Settings:
     # Embedding Settings
     # embedding_model = "TII-UAENLP/Arabic-E5-base"
     # embedding_model = "intfloat/multilingual-e5-small"
-    embedding_model = "intfloat/multilingual-e5-large"
+    # embedding_model = "intfloat/multilingual-e5-large"
+    embedding_model = "BAAI/bge-m3"
 
     # Chunking Settings
     chunk_size = 2000
     chunk_overlap = 100
     law_max_chunk_size = 2000
+    
+    # Search Settings
+    k = 5
+    threshold = 0.6

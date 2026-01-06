@@ -1,9 +1,16 @@
-docx2txt
-numpy
+# Core AI & Embeddings
 sentence-transformers
-chromadb
 transformers
+numpy
+
+# Vector Database
+chromadb
+
+# API Layer
 fastapi
 uvicorn
-tqdm
 pydantic
+
+# Utilities & Data Processing
+docx2txt
+tqdm

@@ -35,9 +35,9 @@ async def lifespan(app: FastAPI):
         # Check if database is empty
         if engine.store.collection.count() == 0:
             print("\nDatabase is empty. Triggering initial ingestion pipeline")
-            run_pipeline()
+            run_pipeline(embedder)
             # Reload engine to pick up new data
-            engine = SearchEngine()
+            engine = SearchEngine(embedder)
         
         state["search_engine"] = engine
         print("API Startup Complete: Search Engine Ready.")
@@ -56,9 +56,9 @@ app = FastAPI(
 # --- Models ---
 
 class QueryRequest(BaseModel):
-    q: str
-    topK: int = 5
-    threshold: float = 0.7
+    question: str
+    top_k: int = Settings.k
+    threshold: float = Settings.threshold
 
 class ChunkMatch(BaseModel):
     text: str
@@ -72,7 +72,7 @@ class DocumentResult(BaseModel):
     chunks: List[ChunkMatch]
 
 class QueryResponse(BaseModel):
-    q: str
+    question: str
     results: List[DocumentResult]
 
 # --- Endpoints ---
@@ -89,13 +89,13 @@ async def search(request: QueryRequest):
     
     try:
         raw_results = state["search_engine"].search(
-            query=request.q, 
-            k=request.topK, 
+            query=request.question, 
+            k=request.top_k, 
             threshold=request.threshold
         )
         
         return QueryResponse(
-            q=request.q,
+            question=request.question,
             results=[DocumentResult(**res) for res in raw_results]
         )
     except Exception as e:

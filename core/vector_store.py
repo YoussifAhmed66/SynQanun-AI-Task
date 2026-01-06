@@ -57,7 +57,7 @@ class VectorStore:
         )
         print(f"Added {len(chunks)} documents to ChromaDB.")
 
-    def search(self, query, k=5, threshold=0.6):
+    def search(self, query, k=Settings.k, threshold=Settings.threshold):
         """
         Searches the collection.
         Returns list of (metadata_with_score, score).

@@ -15,7 +15,7 @@ class SearchEngine:
         self.store = VectorStore(embedder, collection_name="legal_docs")
         print(f"Search Engine Ready. Total documents: {self.store.collection.count()}")
 
-    def search(self, query, k=5, threshold=0.7):
+    def search(self, query, k=Settings.k, threshold=Settings.threshold):
         """
         Searches at the chunk level and groups matches into document-level results.
         Returns a list of documents, where each document contains its relevant chunks.

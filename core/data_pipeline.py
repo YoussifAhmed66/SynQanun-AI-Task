@@ -12,7 +12,7 @@ from core.chunker import Chunker
 from core.vector_store import VectorStore
 from core.embedder import Embedder
 
-def run_pipeline():
+def run_pipeline(embedder: Embedder):
     """
     Main data ingestion function.
     1. Scan document folders.
@@ -23,8 +23,6 @@ def run_pipeline():
 
     # Initialize Components
     chunker = Chunker()
-
-    embedder = Embedder()
     
     store = VectorStore(embedder, collection_name="legal_docs")
     store.reset()
@@ -77,4 +75,5 @@ def run_pipeline():
     print(f"Pipeline Execution Completed. Total documents in collection: {store.collection.count()}")
 
 if __name__ == "__main__":
-    run_pipeline()
+    embedder = Embedder()
+    run_pipeline(embedder)
